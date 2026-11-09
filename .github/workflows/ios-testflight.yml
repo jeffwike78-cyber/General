@@ -1,0 +1,42 @@
+# Build Path C: build an iOS app in the cloud and upload it to TestFlight.
+# DISABLED until you configure it: runs only when triggered manually (Actions tab → Run workflow).
+#
+# Setup (one time):
+#  1. Repo Settings → Secrets → Actions: add ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_CONTENT (base64 .p8)
+#  2. Code signing: set up fastlane `match` or Xcode automatic signing with the API key.
+#     Easiest: run `fastlane match init` once on a Mac and store certs in a private repo.
+#  3. Each app needs a ./fastlane folder (copy app-store-kit/templates/fastlane).
+#
+# Cost note: macOS runner minutes count 10x against the free private-repo allowance.
+
+name: iOS → TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: "Folder under apps/ (e.g. my-app-name)"
+        required: true
+      scheme:
+        description: "Xcode scheme name"
+        required: true
+
+jobs:
+  build:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: apps/${{ inputs.app }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select latest Xcode
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+      - name: Install fastlane
+        run: brew install fastlane
+      - name: Build and upload
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+          APP_SCHEME: ${{ inputs.scheme }}
+        run: fastlane beta

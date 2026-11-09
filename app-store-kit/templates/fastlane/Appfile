@@ -1,0 +1,2 @@
+app_identifier("com.{{COMPANY}}.{{SLUG}}")
+# team_id("XXXXXXXXXX")   # Developer Portal Team ID (Membership page)

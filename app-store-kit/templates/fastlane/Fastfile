@@ -1,0 +1,52 @@
+# fastlane automation. Copy this folder into your Xcode project root as ./fastlane
+# Install once on a Mac:  brew install fastlane
+#
+# Usage:
+#   fastlane beta      -> build + upload to TestFlight
+#   fastlane metadata  -> push listing text + screenshots (no build)
+#   fastlane release   -> build + upload + submit for review
+#
+# Auth uses an App Store Connect API key (no Apple ID password / 2FA prompts).
+# Set these environment variables (or GitHub Actions secrets):
+#   ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_CONTENT (base64 of the .p8 file)
+
+default_platform(:ios)
+
+platform :ios do
+  def api_key
+    app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_content: ENV.fetch("ASC_KEY_CONTENT"),
+      is_key_content_base64: true
+    )
+  end
+
+  desc "Build and upload to TestFlight"
+  lane :beta do
+    key = api_key
+    increment_build_number(
+      build_number: latest_testflight_build_number(api_key: key) + 1
+    )
+    build_app(scheme: ENV.fetch("APP_SCHEME"), export_method: "app-store")
+    upload_to_testflight(api_key: key, skip_waiting_for_build_processing: true)
+  end
+
+  desc "Upload App Store listing text and screenshots only"
+  lane :metadata do
+    deliver(api_key: api_key, skip_binary_upload: true, force: true,
+            submit_for_review: false, precheck_include_in_app_purchases: false)
+  end
+
+  desc "Build, upload and submit for App Review"
+  lane :release do
+    key = api_key
+    increment_build_number(
+      build_number: latest_testflight_build_number(api_key: key) + 1
+    )
+    build_app(scheme: ENV.fetch("APP_SCHEME"), export_method: "app-store")
+    deliver(api_key: key, submit_for_review: true, automatic_release: false,
+            force: true, precheck_include_in_app_purchases: false,
+            submission_information: { add_id_info_uses_idfa: false })
+  end
+end
