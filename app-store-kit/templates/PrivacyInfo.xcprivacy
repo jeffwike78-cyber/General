@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Privacy manifest template. Add this file to your app target in Xcode.
+  Default below = app collects NO data and does NOT track.
+  Edit to match reality: it must agree with your App Privacy labels in App Store Connect.
+
+  Required-reason APIs: if your code (not SDKs) uses UserDefaults, file timestamps,
+  system boot time, disk space, or active keyboards, keep/add the matching entry.
+  The UserDefaults entry (CA92.1 = app's own data) is included because almost every app uses it.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
